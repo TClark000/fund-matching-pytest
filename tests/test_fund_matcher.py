@@ -9,7 +9,7 @@ import pytest
 @pytest.fixture
 def simple_match_funds():
     """
-    fixture simple fund array without ratios
+    fixture simple fund array without ratios (as default)
     """
 
     example_funds_data = [[
@@ -31,6 +31,9 @@ def simple_match_funds():
 
 @pytest.fixture
 def match_funds_with_ratios():
+    """
+    fixture simple fund array with ratios
+    """
     example_funds_data = [[
         "fund_1",  # id
         100.00,  # amount
@@ -52,7 +55,9 @@ def match_funds_with_ratios():
     return [MatchFund(*ef) for ef in example_funds_data]
 
 def test_match_funds_are_sorted_by_match_order_correctly(simple_match_funds):
-
+    """
+    Assert test to confirm ordered match fund array
+    """
     fund_matcher = FundMatcher(simple_match_funds)
 
     correct_match_order = [1, 3, 7]
@@ -61,7 +66,9 @@ def test_match_funds_are_sorted_by_match_order_correctly(simple_match_funds):
         assert mf.match_order == correct_match_order[ix]
 
 def test_simple_reserve_full_match(match_funds_with_ratios):
-
+    """
+    reservation test will a full match on 1 fund
+    """
     fund_matcher = FundMatcher(match_funds_with_ratios)
 
     donation = Donation("donation_1", 50)
@@ -75,3 +82,24 @@ def test_simple_reserve_full_match(match_funds_with_ratios):
     assert (len(allocations) == 1)
     assert (allocations[0].match_fund_id == "fund_3")
     # assert (allocations[0].match_fund_id == "fund_1")
+
+def test_simple_reserve_partial_match(match_funds_with_ratios):
+    """
+    reservation test, donations allocated to > than 1 fund (partial)
+    test donation is allocated in match_fund order
+    """
+    fund_matcher = FundMatcher(match_funds_with_ratios)
+
+    donation = Donation("donation_1", 130)
+    # donation = Donation("donation_1", 250)
+
+    fund_matcher.reserve_funds(donation)
+
+    state = fund_matcher.allocation_state
+
+    allocations = state[donation.donation_id]['allocations']
+
+    assert (len(allocations) == 2)
+    assert (allocations[0].match_fund_id == "fund_3")
+    assert (allocations[1].match_fund_id == "fund_1")
+    # assert (allocations[2].match_fund_id == "fund_2")
