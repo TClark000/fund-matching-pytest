@@ -11,7 +11,7 @@
 ## Setup
 Install python 3.8.x
 
-pip install -r [requirements.txt](requirements.txt)
+```pip install -r requirements.txt```
 
 ## To Run
 
@@ -35,7 +35,7 @@ File structure:
 
 Run pytest:
 
-```pytest -v``` or ```python3 -m pytest -v```
+```pytest -v``` or ```python -m pytest -v```
 
 Run pytest with --cov:
 
