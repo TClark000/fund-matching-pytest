@@ -1,3 +1,4 @@
+from matcher.allocation import Allocation
 from matcher.match_fund import MatchFund
 from matcher.fund_matcher import FundMatcher
 from matcher.fund_matcher import RESERVED, COLLECTED, EXPIRED
@@ -174,3 +175,84 @@ def test_reserve_partial_match_with_ratios(more_match_funds_with_ratios):
     assert (allocations[1].match_fund_id == "fund_1")
     assert (match_funds[0].total_amount == 0)
     assert (match_funds[1].total_amount == 80)
+
+def test_reserve_full_match_multiple_donations(simple_match_funds):
+    """
+    reservation test, donations allocated to 2 fund
+    test order of match_fund allocation
+    test first fund is exhausted
+    test second fund remaining total_amount
+    ratio defaults to 1:1
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+
+    donation_1 = Donation("donation_1", 110)
+    donation_2 = Donation("donation_2", 50)
+
+    fund_matcher.reserve_funds(donation_1)
+    fund_matcher.reserve_funds(donation_2)
+
+    state = fund_matcher.allocation_state
+    allocations_1 = state[donation_1.donation_id]['allocations']
+    allocations_2 = state[donation_2.donation_id]['allocations']
+    match_funds = fund_matcher.get_match_funds_as_list()
+
+    assert (len(allocations_1) == 2)
+    assert (len(allocations_2) == 1)
+
+    assert (match_funds[0].total_amount == 0)
+    assert (match_funds[1].total_amount == 40)
+
+def test_status_on_reserved_funds(simple_match_funds):
+    """
+    test allocations are RESERVED
+    test allocations are RESERVED if match_funds exhausted
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation_1 = Donation("donation_1", 110)
+    donation_2 = Donation("donation_2", 140)
+    donation_3 = Donation("donation_3", 180)
+
+    fund_matcher.reserve_funds(donation_1)
+    fund_matcher.reserve_funds(donation_2)
+    fund_matcher.reserve_funds(donation_3)
+
+    state = fund_matcher.allocation_state
+    allocations_1 = state[donation_1.donation_id]['allocations']
+    allocations_2 = state[donation_2.donation_id]['allocations']
+    allocations_3 = state[donation_2.donation_id]['allocations']
+
+    for a in allocations_1:
+        assert a.status == RESERVED
+
+    for a in allocations_2:
+        assert a.status == RESERVED
+
+    for a in allocations_3:
+        assert a.status == RESERVED
+
+def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
+    """
+    test allocations are RESERVED
+    test allocations are RESERVED if match_funds exhausted
+    test donation_balance_unmatched for donation_2
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation_1 = Donation("donation_1", 150)
+    donation_2 = Donation("donation_2", 250)
+
+    fund_matcher.reserve_funds(donation_1)
+    fund_matcher.reserve_funds(donation_2)
+
+    state = fund_matcher.allocation_state
+    allocations_1 = state[donation_1.donation_id]['allocations']
+    allocations_2 = state[donation_2.donation_id]['allocations']
+
+    for a in allocations_1:
+        assert a.status == RESERVED
+
+    for a in allocations_2:
+        assert a.status == RESERVED
+    
+    assert state[donation_2.donation_id]['original_donation'] == 250
+    assert state[donation_2.donation_id]['donation_balance_unmatched'] == 100
