@@ -10,8 +10,9 @@
 * [Contact](#contact)
 
 ## Setup
-install python 3.8.x
-pip install -r [requirements.txt](requirements.txt)
+Install python 3.8.x
+
+pip install [requirements.txt](requirements.txt)
 
 ## To Run
 
