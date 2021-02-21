@@ -278,6 +278,7 @@ def test_simple_collect_donation(simple_match_funds):
 def test_simple_collect_multiple_donations(simple_match_funds):
     """
     test allocations status set to COLLECTED
+    test overall status set to COLLECTED
     test match_fund total balance (occurs when reservations are allocated)
     """
     fund_matcher = FundMatcher(simple_match_funds)
@@ -300,7 +301,22 @@ def test_simple_collect_multiple_donations(simple_match_funds):
     for a in allocations_2:
         assert a.status == COLLECTED
 
+    assert state[donation_1.donation_id]['overall_status'] == COLLECTED
+    assert state[donation_2.donation_id]['overall_status'] == COLLECTED
+
     match_funds = fund_matcher.get_match_funds_as_list()
 
     assert match_funds[0].total_amount == 0
     assert match_funds[1].total_amount == 40
+
+def test_simple_collect_donation_wrong_id(simple_match_funds):
+    """
+    Tests collection donation_id is valid 
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation = Donation("donation_1", 50)
+
+    fund_matcher.reserve_funds(donation)
+
+    with pytest.raises(BadRequestException):
+        fund_matcher.collect_donation("donation_10")

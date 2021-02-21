@@ -101,3 +101,7 @@ class FundMatcher(object):
                 raise BadRequestException("Invalid collection request. Allocation is not reserved")
             else:
                 allocation.status = COLLECTED
+
+        self.allocation_state[donation_id]['allocations'] = allocations
+        self.allocation_state[donation_id]['updated_time'] = datetime.now()
+        self.allocation_state[donation_id]['overall_status'] = COLLECTED
