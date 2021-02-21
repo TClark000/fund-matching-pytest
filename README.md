@@ -4,16 +4,14 @@
 ## Table of contents
 * [Setup](#setup)
 * [To Run](#to-run)
-* [Objectives](#objectives)
 * [Things to Do](#things-to-do)
 * [Status](#status)
-* [Inspiration](#inspiration)
 * [Contact](#contact)
 
 ## Setup
 Install python 3.8.x
 
-pip install [requirements.txt](requirements.txt)
+pip install -r [requirements.txt](requirements.txt)
 
 ## To Run
 
@@ -36,19 +34,12 @@ File structure:
 ```
 
 Run pytest:
+
 ```pytest -v``` or ```python3 -m pytest -v```
 
 Run pytest with --cov:
 
 ```python -m pytest -v --cov-report term-missing --cov=.```
-
-## Objectives
-
-* Correctly interpret the instructions
-* Produce the correct output
-* Be easy for other developers to understand
-* Use appropriate approaches and tools
-* Handle errors gracefully
 
 ## Things to Do
 * Add more tests
