@@ -235,7 +235,7 @@ def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
     """
     test allocations are RESERVED
     test allocations are RESERVED if match_funds exhausted
-    test donation_balance_unmatched for donation_2
+    test donation_balance_unmatched
     """
     fund_matcher = FundMatcher(simple_match_funds)
     donation_1 = Donation("donation_1", 150)
@@ -254,5 +254,7 @@ def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
     for a in allocations_2:
         assert a.status == RESERVED
     
+    assert state[donation_1.donation_id]['original_donation'] == 150
+    assert state[donation_1.donation_id]['donation_balance_unmatched'] == 0
     assert state[donation_2.donation_id]['original_donation'] == 250
     assert state[donation_2.donation_id]['donation_balance_unmatched'] == 100
