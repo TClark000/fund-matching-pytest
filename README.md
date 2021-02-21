@@ -33,13 +33,15 @@ File structure:
     └── test_match_fund.py
 ```
 
+From the root of the repo directory structure, run the test suite.
+
 Run pytest:
 
 ```pytest -v``` or ```python -m pytest -v```
 
-Run pytest with --cov:
+Run coverage test, with project name:
 
-```python -m pytest -v --cov-report term-missing --cov=.```
+```python -m pytest -v --cov-report term-missing --cov matcher```
 
 ## Things to Do
 * Add more tests
