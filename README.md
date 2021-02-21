@@ -1,9 +1,10 @@
 # Fund Matching Model - testing with pytest framework
-> A fund matching model based around a simple class with methods as defined by the instructions, and test suite to test for accuracy and correctness using [pytest](https://docs.pytest.org/en/stable/).
+> A fund matching model based around a simple class with methods as defined by the instructions, and test suite to test for accuracy and correctness using [pytest](https://docs.pytest.org/en/stable/).  The tests are designed to demonstrate correct interpretation of instructions and correct output.
 
 ## Table of contents
 * [Setup](#setup)
 * [To Run](#to-run)
+* [Objectives](#objectives)
 * [Things to Do](#things-to-do)
 * [Status](#status)
 * [Inspiration](#inspiration)
@@ -40,6 +41,14 @@ Run pytest:
 Run pytest with --cov:
 
 ```python -m pytest -v --cov-report term-missing --cov=.```
+
+## Objectives
+
+* Correctly interpret the instructions
+* Produce the correct output
+* Be easy for other developers to understand
+* Use appropriate approaches and tools
+* Handle errors gracefully
 
 ## Things to Do
 * Add more tests
