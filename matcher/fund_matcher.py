@@ -81,3 +81,23 @@ class FundMatcher(object):
             'overall_status': RESERVED
         }
         self.allocation_state[donation.donation_id] = allocation_state_doc
+
+    def collect_donation(self, donation_id):
+        """
+        Collect a donation that is set to Reserved
+        Sets the state of all allocations against that donation are set to Collected
+        Throws errors if the allocation status is not Reserved
+        """
+
+        # Is donation_id valid?
+        if not donation_id in self.allocation_state:
+            raise BadRequestException("Invalid donation id %s" % donation_id)
+
+        allocations = self.allocation_state[donation_id]['allocations']
+
+        # Ensure that only allocation status of RESERVED are COLLECTED
+        for allocation in allocations:
+            if not allocation.status == RESERVED:
+                raise BadRequestException("Invalid collection request. Allocation is not reserved")
+            else:
+                allocation.status = COLLECTED
