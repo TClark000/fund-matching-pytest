@@ -260,7 +260,9 @@ def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
     assert state[donation_2.donation_id]['donation_balance_unmatched'] == 100
 
 def test_simple_collect_donation(simple_match_funds):
-
+    """
+    test allocation status set to COLLECTED
+    """
     fund_matcher = FundMatcher(simple_match_funds)
     donation = Donation("donation_1", 50)
 
@@ -272,3 +274,33 @@ def test_simple_collect_donation(simple_match_funds):
 
     for a in allocations:
         assert a.status == COLLECTED
+
+def test_simple_collect_multiple_donations(simple_match_funds):
+    """
+    test allocations status set to COLLECTED
+    test match_fund total balance (occurs when reservations are allocated)
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation_1 = Donation("donation_1", 110)
+    donation_2 = Donation("donation_2", 50)
+
+    fund_matcher.reserve_funds(donation_1)
+    fund_matcher.reserve_funds(donation_2)
+
+    fund_matcher.collect_donation(donation_1.donation_id)
+    fund_matcher.collect_donation(donation_2.donation_id)
+
+    state = fund_matcher.allocation_state
+    allocations_1 = state[donation_1.donation_id]['allocations']
+    allocations_2 = state[donation_2.donation_id]['allocations']
+
+    for a in allocations_1:
+        assert a.status == COLLECTED
+
+    for a in allocations_2:
+        assert a.status == COLLECTED
+
+    match_funds = fund_matcher.get_match_funds_as_list()
+
+    assert match_funds[0].total_amount == 0
+    assert match_funds[1].total_amount == 40
