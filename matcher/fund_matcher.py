@@ -105,3 +105,31 @@ class FundMatcher(object):
         self.allocation_state[donation_id]['allocations'] = allocations
         self.allocation_state[donation_id]['updated_time'] = datetime.now()
         self.allocation_state[donation_id]['overall_status'] = COLLECTED
+    
+    def expire_donation(self, donation_id):
+        """
+        Expire a donation
+        Finds the donation based on id, checks to see if is RESERVED.
+        If it is, then set the status to EXPIRED and return the matched funds
+        so that new donations can use them.
+        Note: the instructions mention not to do this for previously collected donations - but
+        not new donations.
+        """
+
+        if donation_id not in self.allocation_state:
+            raise BadRequestException("Invalid donation_id %s" % donation_id)
+
+        allocations = self.allocation_state[donation_id]['allocations']
+
+        for allocation in allocations:
+            if not allocation.status == RESERVED:
+                raise BadRequestException("Invalid collection request. Allocation is not reserved")
+            else:
+                allocation.status = EXPIRED
+                allocation_match_fund = self.match_funds[allocation.match_fund_id]
+                allocation_match_fund.total_amount += allocation.match_fund_allocation
+                self.match_funds[allocation.match_fund_id] = allocation_match_fund
+
+        self.allocation_state[donation_id]['allocations'] = allocations
+        self.allocation_state[donation_id]['updated_time'] = datetime.now()
+        self.allocation_state[donation_id]['overall_status'] = EXPIRED

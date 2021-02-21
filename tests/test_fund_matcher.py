@@ -320,3 +320,27 @@ def test_simple_collect_donation_wrong_id(simple_match_funds):
 
     with pytest.raises(BadRequestException):
         fund_matcher.collect_donation("donation_10")
+
+def test_expire_donation_check_status_and_fund_balance(simple_match_funds):
+    """
+    test allocations are EXPIRED
+    test overall status is EXPIRED
+    test match_fund total_balance remunerated
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation = Donation("donation_1", 50)
+
+    fund_matcher.reserve_funds(donation)
+
+    fund_matcher.expire_donation(donation.donation_id)
+
+    state = fund_matcher.allocation_state
+
+    allocations = state[donation.donation_id]['allocations']
+
+    for a in allocations:
+        assert a.status == EXPIRED
+    assert state[donation.donation_id]['overall_status'] == EXPIRED
+
+    match_funds = fund_matcher.get_match_funds_as_list()
+    assert (match_funds[0].total_amount == 100)
