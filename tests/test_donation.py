@@ -3,6 +3,7 @@ from matcher.exceptions import BadRequestException
 import uuid
 import pytest
 
+@pytest.mark.order(100)
 def test_donation_is_valid():
     """
     Test to see if donation objects are valid
@@ -18,6 +19,7 @@ def test_donation_is_valid():
 
     assert isinstance(donation.amount, float)
 
+@pytest.mark.order(102)
 def test_donation_has_valid_amount_other():
     donation_id = uuid.uuid4().hex
     amount = "500g"
@@ -25,6 +27,7 @@ def test_donation_has_valid_amount_other():
     with pytest.raises(ValueError):
         Donation(donation_id, amount)
 
+@pytest.mark.order(103)
 def test_donation_amount_min():
     donation_id = uuid.uuid4().hex
     amount = 4
@@ -32,6 +35,7 @@ def test_donation_amount_min():
     with pytest.raises(BadRequestException):
         Donation(donation_id, amount)
 
+@pytest.mark.order(104)
 def test_donation_amount_max():
     donation_id = uuid.uuid4().hex
     amount = 25001

@@ -27,7 +27,6 @@ def simple_match_funds():
         1,
     ]
     ]
-
     return [MatchFund(*ef) for ef in example_funds_data]
 
 @pytest.fixture
@@ -35,6 +34,7 @@ def match_funds_with_ratios():
     """
     fixture fund arrays with ratios
     """
+
     example_funds_data = [[
         "fund_1",  # id
         100.00,  # amount
@@ -52,7 +52,6 @@ def match_funds_with_ratios():
         [1, 1]
     ]
     ]
-
     return [MatchFund(*ef) for ef in example_funds_data]
 
 @pytest.fixture
@@ -60,6 +59,7 @@ def more_match_funds_with_ratios():
     """
     additional fixture fund arrays with ratios
     """
+
     example_funds_data = [[
         "fund_1",  # id
         100.00,  # amount
@@ -77,13 +77,14 @@ def more_match_funds_with_ratios():
         [2, 1]
     ]
     ]
-
     return [MatchFund(*ef) for ef in example_funds_data]
 
+@pytest.mark.order(301)
 def test_match_funds_are_sorted_by_match_order_correctly(simple_match_funds):
     """
     Assert test to confirm ordered match fund array
     """
+
     fund_matcher = FundMatcher(simple_match_funds)
 
     correct_match_order = [1, 3, 7]
@@ -91,6 +92,7 @@ def test_match_funds_are_sorted_by_match_order_correctly(simple_match_funds):
     for ix, mf in enumerate(fund_matcher.get_match_funds_as_list()):
         assert mf.match_order == correct_match_order[ix]
 
+@pytest.mark.order(302)
 def test_simple_reserve_full_match(match_funds_with_ratios):
     """
     reservation test will a full match on 1 fund
@@ -109,6 +111,7 @@ def test_simple_reserve_full_match(match_funds_with_ratios):
     assert (allocations[0].match_fund_id == "fund_3")
     # assert (allocations[0].match_fund_id == "fund_1")
 
+@pytest.mark.order(303)
 def test_simple_reserve_partial_match(match_funds_with_ratios):
     """
     reservation test, donations allocated to > than 1 fund (partial)
@@ -130,6 +133,7 @@ def test_simple_reserve_partial_match(match_funds_with_ratios):
     assert (allocations[1].match_fund_id == "fund_1")
     # assert (allocations[2].match_fund_id == "fund_2")
 
+@pytest.mark.order(304)
 def test_reserve_full_match_with_ratios(match_funds_with_ratios):
     """
     reservation test, donations allocated to 1 fund
@@ -151,6 +155,7 @@ def test_reserve_full_match_with_ratios(match_funds_with_ratios):
     assert (allocations[0].match_fund_id == "fund_2")
     assert (match_funds[0].total_amount == 50)
 
+@pytest.mark.order(305)
 def test_reserve_partial_match_with_ratios(more_match_funds_with_ratios):
     """
     reservation test, donations allocated to 2 fund
@@ -176,6 +181,7 @@ def test_reserve_partial_match_with_ratios(more_match_funds_with_ratios):
     assert (match_funds[0].total_amount == 0)
     assert (match_funds[1].total_amount == 80)
 
+@pytest.mark.order(306)
 def test_reserve_full_match_multiple_donations(simple_match_funds):
     """
     reservation test, donations allocated to 2 fund
@@ -203,6 +209,7 @@ def test_reserve_full_match_multiple_donations(simple_match_funds):
     assert (match_funds[0].total_amount == 0)
     assert (match_funds[1].total_amount == 40)
 
+@pytest.mark.order(307)
 def test_status_on_reserved_funds(simple_match_funds):
     """
     test allocations are RESERVED
@@ -231,6 +238,7 @@ def test_status_on_reserved_funds(simple_match_funds):
     for a in allocations_3:
         assert a.status == RESERVED
 
+@pytest.mark.order(308)
 def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
     """
     test allocations are RESERVED
@@ -259,6 +267,7 @@ def test_reserve_funds_donation_balance_unmatched(simple_match_funds):
     assert state[donation_2.donation_id]['original_donation'] == 250
     assert state[donation_2.donation_id]['donation_balance_unmatched'] == 100
 
+@pytest.mark.order(309)
 def test_simple_collect_donation(simple_match_funds):
     """
     test allocation status set to COLLECTED
@@ -275,6 +284,7 @@ def test_simple_collect_donation(simple_match_funds):
     for a in allocations:
         assert a.status == COLLECTED
 
+@pytest.mark.order(310)
 def test_simple_collect_multiple_donations(simple_match_funds):
     """
     test allocations status set to COLLECTED
@@ -309,6 +319,7 @@ def test_simple_collect_multiple_donations(simple_match_funds):
     assert match_funds[0].total_amount == 0
     assert match_funds[1].total_amount == 40
 
+@pytest.mark.order(311)
 def test_simple_collect_donation_wrong_id(simple_match_funds):
     """
     Tests collection donation_id is valid 
@@ -321,6 +332,7 @@ def test_simple_collect_donation_wrong_id(simple_match_funds):
     with pytest.raises(BadRequestException):
         fund_matcher.collect_donation("donation_10")
 
+@pytest.mark.order(312)
 def test_expire_donation_check_status_and_fund_balance(simple_match_funds):
     """
     test allocations are EXPIRED
@@ -345,6 +357,7 @@ def test_expire_donation_check_status_and_fund_balance(simple_match_funds):
     match_funds = fund_matcher.get_match_funds_as_list()
     assert (match_funds[0].total_amount == 100)
 
+@pytest.mark.order(313)
 def test_expire_donation_on_invalid_status(simple_match_funds):
     """
     test allocation state that is set to COLLECTED is not EXPIRED
@@ -357,3 +370,67 @@ def test_expire_donation_on_invalid_status(simple_match_funds):
 
     with pytest.raises(BadRequestException):
         fund_matcher.expire_donation(donation.donation_id)
+
+@pytest.mark.order(314)
+def test_list_match_fund_allocations(simple_match_funds):
+    """
+    Only list RESERVED or COLLECTED allocations (ignores EXPIRED)
+    Returns a list of allocations per donation in the format:
+    { "donation_id" : <donation_id>,
+        "allocations" : [ { "match_fund_id": <fund_id>, "match_fund_allocation": <amount>, "status": <status>}, {..} ],
+        "created_time": datetime when reservation was first created,
+        "updated_time": datetime when reservation was last updated,
+        "overall_status": one of "Reserved" or "Collected",
+        "donation_balance_unmatched": <amount of donation unmatched>,
+        "original_donation": <the original donation amount>
+    }
+    """
+
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation_1 = Donation("donation_1", 100)
+    donation_2 = Donation("donation_2", 250)
+    donation_3 = Donation("donation_3", 45)
+
+    fund_matcher.reserve_funds(donation_1)
+    fund_matcher.reserve_funds(donation_2)
+    fund_matcher.reserve_funds(donation_3)
+
+    fund_matcher.collect_donation(donation_2.donation_id)
+    fund_matcher.expire_donation(donation_3.donation_id)
+
+    allocations_list = fund_matcher.list_match_fund_allocations()
+
+    min_expected_output = [
+        {
+            "donation_id": "donation_1",
+            "allocations": [
+                {"match_fund_id": "fund_3",
+                "match_fund_allocation": 100,
+                "status": RESERVED
+                }
+
+            ],
+        },
+        {
+            "donation_id": "donation_2",
+            "allocations": [
+                {"match_fund_id": "fund_1",
+                "match_fund_allocation": 100,
+                "status": COLLECTED
+                },
+                {"match_fund_id": "fund_2",
+                "match_fund_allocation": 100,
+                "status": COLLECTED
+                }
+            ],
+            "original_donation": 250,
+            "donation_balance_unmatched": 50,
+            "overall_status": COLLECTED
+        }
+    ]
+
+    assert len(min_expected_output) == len(allocations_list)
+    assert allocations_list[0]['donation_id'] == min_expected_output[0]['donation_id']
+    assert allocations_list[0]['allocations'] == min_expected_output[0]['allocations']
+    assert allocations_list[1]['donation_id'] == min_expected_output[1]['donation_id']
+    assert allocations_list[1]['allocations'] == min_expected_output[1]['allocations']

@@ -133,3 +133,23 @@ class FundMatcher(object):
         self.allocation_state[donation_id]['allocations'] = allocations
         self.allocation_state[donation_id]['updated_time'] = datetime.now()
         self.allocation_state[donation_id]['overall_status'] = EXPIRED
+
+    def list_match_fund_allocations(self):
+        """
+        Only list RESERVED or COLLECTED allocations
+        Returns the allocations
+        """
+
+        all_allocations = []
+
+        for donation_id in self.allocation_state.keys():
+            if self.allocation_state[donation_id]['overall_status'] != EXPIRED:
+                output_doc = {
+                    'donation_id': donation_id,
+                    **self.allocation_state[donation_id]
+                }
+                allocations = [a.to_dict() for a in self.allocation_state[donation_id]['allocations']]
+                output_doc['allocations'] = allocations
+                all_allocations.append(output_doc)
+
+        return all_allocations

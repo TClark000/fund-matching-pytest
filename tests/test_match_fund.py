@@ -3,6 +3,7 @@ import random
 import uuid
 import pytest
 
+@pytest.mark.order(201)
 def test_match_fund_is_valid():
     """
     Test to see if match fund objects are valid
@@ -36,6 +37,7 @@ def test_match_fund_is_valid():
     assert lhs == 1
     assert rhs == 1
 
+@pytest.mark.order(202)
 def test_match_fund_total_amount_other():
     match_fund_id = uuid.uuid4().hex
     total_amount = "500g"
