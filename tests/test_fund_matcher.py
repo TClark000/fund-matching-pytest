@@ -344,3 +344,16 @@ def test_expire_donation_check_status_and_fund_balance(simple_match_funds):
 
     match_funds = fund_matcher.get_match_funds_as_list()
     assert (match_funds[0].total_amount == 100)
+
+def test_expire_donation_on_invalid_status(simple_match_funds):
+    """
+    test allocation state that is set to COLLECTED is not EXPIRED
+    """
+    fund_matcher = FundMatcher(simple_match_funds)
+    donation = Donation("donation_1", 50)
+
+    fund_matcher.reserve_funds(donation)
+    fund_matcher.collect_donation(donation.donation_id)
+
+    with pytest.raises(BadRequestException):
+        fund_matcher.expire_donation(donation.donation_id)
