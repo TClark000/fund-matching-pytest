@@ -32,7 +32,7 @@ def simple_match_funds():
 @pytest.fixture
 def match_funds_with_ratios():
     """
-    fixture simple fund array with ratios
+    fixture fund arrays with ratios
     """
     example_funds_data = [[
         "fund_1",  # id
@@ -49,6 +49,31 @@ def match_funds_with_ratios():
         100.00,
         1,
         [1, 1]
+    ]
+    ]
+
+    return [MatchFund(*ef) for ef in example_funds_data]
+
+@pytest.fixture
+def more_match_funds_with_ratios():
+    """
+    additional fixture fund arrays with ratios
+    """
+    example_funds_data = [[
+        "fund_1",  # id
+        100.00,  # amount
+        3,  # order
+        [2, 1]  # ratio
+    ], [
+        "fund_2",
+        100.00,
+        7,
+        [3, 1]
+    ], [
+        "fund_3",
+        100.00,
+        1,
+        [2, 1]
     ]
     ]
 
@@ -103,3 +128,49 @@ def test_simple_reserve_partial_match(match_funds_with_ratios):
     assert (allocations[0].match_fund_id == "fund_3")
     assert (allocations[1].match_fund_id == "fund_1")
     # assert (allocations[2].match_fund_id == "fund_2")
+
+def test_reserve_full_match_with_ratios(match_funds_with_ratios):
+    """
+    reservation test, donations allocated to 1 fund
+    test ratio of 2:1, match_fund allocation is doubled
+    """
+
+    fund_matcher = FundMatcher([match_funds_with_ratios[1]])
+
+    donation = Donation("donation_1", 25)
+
+    fund_matcher.reserve_funds(donation)
+
+    state = fund_matcher.allocation_state
+
+    allocations = state[donation.donation_id]['allocations']
+    match_funds = fund_matcher.get_match_funds_as_list()
+
+    assert (len(allocations) == 1)
+    assert (allocations[0].match_fund_id == "fund_2")
+    assert (match_funds[0].total_amount == 50)
+
+def test_reserve_partial_match_with_ratios(more_match_funds_with_ratios):
+    """
+    reservation test, donations allocated to 2 fund
+    test order of match_fund allocation
+    test ratio of 2:1, match_fund allocation is doubled
+    test first fund is exhausted
+    test second fund remaining total_amount
+    """
+    fund_matcher = FundMatcher(more_match_funds_with_ratios)
+
+    donation = Donation("donation_1", 60)
+
+    fund_matcher.reserve_funds(donation)
+
+    state = fund_matcher.allocation_state
+
+    allocations = state[donation.donation_id]['allocations']
+    match_funds = fund_matcher.get_match_funds_as_list()
+
+    assert (len(allocations) == 2)
+    assert (allocations[0].match_fund_id == "fund_3")
+    assert (allocations[1].match_fund_id == "fund_1")
+    assert (match_funds[0].total_amount == 0)
+    assert (match_funds[1].total_amount == 80)
